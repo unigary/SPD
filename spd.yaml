@@ -1,0 +1,31 @@
+name: spd
+channels:
+  - defaults
+dependencies:
+  - python=3.7
+  - pip
+  - pytorch
+  - torchvision
+  - cudatoolkit=11.0
+  - absl-py
+  - pyparsing
+  - pip:
+    - termcolor
+    - git+git://github.com/deepmind/dm_control.git
+    - git+git://github.com/denisyarats/dmc2gym.git
+    - tb-nightly
+    - imageio
+    - imageio-ffmpeg
+    - git+git://github.com/facebookresearch/hydra@0.11_branch
+    - pandas
+    - ipdb
+    - tqdm
+    - yapf
+    - mujoco_py
+    - sklearn
+    - matplotlib
+    - kornia
+    - scikit-image
+    - scikit-video
+    - opencv-python
+    - pillow==6.1

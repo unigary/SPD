@@ -1,0 +1,97 @@
+# env
+env: walker_walk
+action_repeat: 2
+# train
+num_train_steps: 510000
+num_train_iters: 1
+num_seed_steps: 1000
+replay_buffer_capacity: 100000
+seed: 3
+# eval
+eval_frequency: 5000
+num_eval_episodes: 10
+# misc
+log_frequency_step: 10000
+log_save_tb: false
+save_video: false
+device: cuda:0
+# observation
+image_size: 84
+image_pad: 4
+frame_stack: 3
+# global params
+lr: 1e-3
+batch_size: 128
+train_resource_files: /your_path/idealgas/*.mp4
+eval_resource_1_files: /your_path/idealgas/*.mp4
+eval_resource_2_files: /your_path/resource_folder/driving_car/*.mp4
+train_img_source: video
+eval_img_1_source: video
+eval_img_2_source: video
+total_frames: 1000
+
+# agent configuration
+agent:
+  name: spd
+  class: spd.SPDAgent
+  params:
+    obs_shape: ??? # to be specified later
+    action_shape: ??? # to be specified later
+    action_range: ??? # to be specified later
+    device: ${device}
+    encoder_cfg: ${encoder}
+    discriminator_cfg: ${discriminator}
+    critic_cfg: ${critic}
+    actor_cfg: ${actor}
+    inv_cfg: ${inv}
+    discount: 0.99
+    init_temperature: 0.1
+    lr: ${lr}
+    actor_update_frequency: 2
+    critic_tau: 0.01
+    critic_target_update_frequency: 2
+    batch_size: ${batch_size}
+
+encoder:
+  class: spd.Encoder
+  params:
+      obs_shape: ${agent.params.obs_shape}
+      feature_dim: 50
+
+inv:
+  class: spd.InverseForwardDynamicsModel
+  params:
+      encoder_cfg: ${agent.params.encoder_cfg}
+      feature_dim: 50
+      action_shape: ${agent.params.action_shape}
+      hidden_dim: 256
+
+actor:
+  class: spd.Actor
+  params:
+    encoder_cfg: ${agent.params.encoder_cfg}
+    action_shape: ${agent.params.action_shape}
+    hidden_dim: 256
+    hidden_depth: 2
+    log_std_bounds: [-10, 2]
+
+critic:
+  class: spd.Critic
+  params:
+    encoder_cfg: ${agent.params.encoder_cfg}
+    action_shape: ${agent.params.action_shape}
+    hidden_dim: 256
+    hidden_depth: 2
+
+discriminator:
+  class: spd.Discriminator
+  params:
+      feature_dim: 50
+      hidden_dim: 256
+      hidden_depth: 2
+
+# hydra configuration
+hydra:
+  name: ${env}
+  run:
+    dir: ./runs_spd/${now:%Y.%m.%d}/${now:%H%M%S}_${hydra.job.override_dirname}
